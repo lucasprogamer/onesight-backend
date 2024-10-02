@@ -2,4 +2,9 @@
 
 namespace App\Query\Schedule;
 
-class ListSchedulesQuery {}
+use DateTime;
+
+class ListSchedulesQuery
+{
+    public function __construct(public DateTime|null $date = null) {}
+}

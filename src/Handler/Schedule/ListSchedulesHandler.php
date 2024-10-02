@@ -12,6 +12,21 @@ class ListSchedulesHandler
 
     public function handle(ListSchedulesQuery $query): array
     {
-        return $this->entityManager->getRepository(Schedule::class)->findAll();
+        // Verifique se a data é nula
+        if ($query->date === null) {
+            return [];
+        }
+
+        // Formatar a data
+        $date = $query->date->format('Y-m-d');
+
+        return $this->entityManager->createQueryBuilder()
+            ->select('s')
+            ->from(Schedule::class, 's')
+            ->where('s.datetime LIKE :date')
+            ->setParameter('date', $date . '%') // Adiciona um wildcard para capturar qualquer hora
+            ->orderBy('s.priority', 'DESC')
+            ->getQuery()
+            ->getResult();
     }
 }
