@@ -1,15 +1,16 @@
-FROM php:8.1-fpm-alpine
-
-# Instalação do Composer
-RUN apk add --no-cache curl git && \
-    curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-
-# Instalação de extensões PHP necessárias
-RUN apk add --no-cache \
-    libpng-dev \
-    libjpeg-turbo-dev \
-    libwebp-dev \
-    && docker-php-ext-configure gd --with-jpeg --with-webp \
-    && docker-php-ext-install gd pdo pdo_mysql
+FROM php:8.2-fpm
 
 WORKDIR /var/www/html
+
+RUN apt-get update && apt-get install -y \
+    git \
+    unzip \
+    && docker-php-ext-install pdo pdo_mysql
+
+RUN useradd -ms /bin/bash appuser
+USER appuser
+
+COPY --chown=appuser:appuser . .
+
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
